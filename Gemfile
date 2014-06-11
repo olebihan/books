@@ -40,3 +40,4 @@ gem 'spring',        group: :development
 
 gem 'rubber'
 gem 'open4'
+gem 'newrelic_rpm'
