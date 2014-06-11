@@ -1,12 +1,12 @@
 # REQUIRED: The name of your application
-app_name: your_app_name
+app_name: books
 
 # REQUIRED: The system user to run your app servers as
-app_user: app
+app_user: ubuntu
 
 # REQUIRED: Notification emails (e.g. monit) get sent to this address
 #
-admin_email: "root@#{full_host}"
+admin_email: "olebihan@gmail.com"
 
 # OPTIONAL: If not set, you won't be able to access web_tools
 # server (graphite, graylog, monit status, haproxy status, etc)
@@ -54,13 +54,15 @@ cloud_providers:
     # us-west-1      # US West (Northern California) Region
     # us-west-2      # US West (Oregon) Region
     #
-    region: us-east-1
+    #region: us-east-1
+    region: us-west-2
 
     # REQUIRED The amazon keys and account ID (digits only, no dashes) used to access the AWS API
     #
-    access_key: XXX
-    secret_access_key: YYY
-    account: 'ZZZ'
+    access_key: AKIAIFUOTCQX2U7ZHV5A
+    secret_access_key: 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
+    account: 'olebihan'
+
 
     # REQUIRED:  The name of the amazon keypair and location of its private key
     #
@@ -69,8 +71,9 @@ cloud_providers:
     # extension ".pub".  The easiest way to get your hand on this is to create the
     # public key from the private key: ssh-keygen -y -f gsg-keypair > gsg-keypair.pub
     #
-    key_name: gsg-keypair
-    key_file: "#{Dir[(File.expand_path('~') rescue '/root') + '/.ec2/*' + cloud_providers.aws.key_name].first}"
+    key_name: ec2keypairname
+    key_file: "~/.ec2/gsg-keypair"
+    #key_file: "#{Dir[(File.expand_path('~') rescue '/root') + '/.ec2/*' + cloud_providers.aws.key_name].first}"
 
     # OPTIONAL: Needed for bundling a running instance using rubber:bundle
     #
@@ -86,8 +89,14 @@ cloud_providers:
     # Ubuntu 12.04 Precise instance-store 64-bit: ami-eafa5883
     #
     # m1.small or m1.large or m1.xlarge
-    image_type: c1.medium
-    image_id: ami-b6089bdf
+    #image_type: c1.medium
+    #image_id: ami-b6089bdf
+    image_type: t1.micro
+    #image_id: ami-6ac2a85a # ubuntu
+    # Amazon Linux
+    #image_id: ami-043a5034
+    # ubuntu 32bits
+    image_id: ami-68c2a858
 
     # OPTIONAL: EC2 spot instance request support.
     #
@@ -189,15 +198,15 @@ web_tools_ssl_port: 8443
 #         to_port: "#{graphite_server_port}"
 #
 security_groups:
-  default:
-    description: The default security group
-    rules:
-      - source_group_name: default
-        source_group_account: "#{cloud_providers.aws.account}"
-      - protocol: tcp
-        from_port: 22
-        to_port: 22
-        source_ips: [0.0.0.0/0]
+  #default:
+  #  description: The default security group
+  #  rules:
+  #    - source_group_name: default
+  #      source_group_account: "#{cloud_providers.aws.account}"
+  #    - protocol: tcp
+  #      from_port: 22
+  #      to_port: 22
+  #      source_ips: [0.0.0.0/0]
   web:
     description: "To open up port #{web_port}/#{web_ssl_port} for http server on web role"
     rules:
@@ -232,17 +241,20 @@ roles:
 # OPTIONAL: Automatically create security groups for each host and role
 # EC2 doesn't allow one to change what groups an instance belongs to after
 # creation, so its good to have some empty ones predefined.
-auto_security_groups: true
+#auto_security_groups: true
+auto_security_groups: false
 
 # OPTIONAL: Automatically isolate security groups for each appname/environment
 # by mangling their names to be appname_env_groupname
 # This makes it safer to have staging and production coexist on the same EC2
 # account, or even multiple apps
-isolate_security_groups: true
+#isolate_security_groups: true
+isolate_security_groups: false
 
 # OPTIONAL: Prompts one to sync security group rules when the ones in amazon
 # differ from those in rubber
-prompt_for_security_group_sync: true
+#prompt_for_security_group_sync: true
+prompt_for_security_group_sync: false
 
 # OPTIONAL: A list of CIDR address blocks that represent private networks for your cluster.
 # Set this to open up wide access to hosts in your network.  Consequently, setting the CIDR block
@@ -281,9 +293,9 @@ stop_on_error_cmd: "function error_exit { exit 99; }; trap error_exit ERR"
 # excluding slave roles, but this is not always desired for staging, so you can
 # specify a different set here
 #
-# staging_roles: "web,app,db:primary=true"
+staging_roles: "web,app,db:primary=true,mysql"
 # Auto detect staging roles
-staging_roles: "#{known_roles.reject {|r| r =~ /slave/ || r =~ /^db$/ }.join(',')}"
+#staging_roles: "#{known_roles.reject {|r| r =~ /slave/ || r =~ /^db$/ }.join(',')}"
 
 # OPTIONAL: Lets one assign amazon elastic IPs (static IPs) to your instances
 #           You should typically set this on the role/host level rather than
